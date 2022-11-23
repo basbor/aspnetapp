@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: "aspnetappprivaks-309a"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: "aspnetappprivaks-309a"
+  template:
+    metadata:
+      labels:
+        app: "aspnetappprivaks-309a"
+    spec:
+      containers:
+        - name: "aspnetappprivaks-309a"
+          image: "adoagentacr.azurecr.io/aspnetappprivaks"
+          ports:
+          - containerPort: 80
