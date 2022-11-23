@@ -19,7 +19,7 @@ variables:
   imagePullSecret: 'aspnetapp3acr1322b73c-auth'
 
   # Agent VM image name
-  vmImageName: 'ubuntu-latest'
+  # vmImageName: 'ubuntu-latest'
 
 
 stages:
