@@ -38,32 +38,33 @@ jobs:
         needs:
             - buildImage
         steps:
-            - uses: actions/checkout@v3
-            - uses: azure/login@v1.4.3
-              name: Azure login
-              with:
-                client-id: ${{ secrets.AZURE_CLIENT_ID }}
-                subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-                tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-            - uses: azure/aks-set-context@v3
-              name: Get K8s context
-              with:
-                cluster-name: ${{ env.CLUSTER_NAME }}
-                resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
-            - uses: azure/k8s-create-secret@v1
-              with:
-                namespace: default
-                container-registry-url: aspnetappacr.azurecr.io
-                container-registry-username: ${{ secrets.acr_aspnetappacr_username }}
-                container-registry-password: ${{ secrets.acr_aspnetappacr_password }}
-                secret-name: aspnetappaksdockerauth
-            - uses: Azure/k8s-deploy@v4
-              name: Deploys application
-              with:
-                action: deploy
-                images: ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.CONTAINER_NAME }}:${{ github.sha }}
-                imagepullsecrets: |
-                  aspnetappaksdockerauth
-                manifests: ${{ env.DEPLOYMENT_MANIFEST_PATH }}
-                namespace: default
-                force: true
+        - uses: azure/k8s-set-context@v1
+          with:
+             kubeconfig: ${{ secrets.aks_aspnetappaks_kubeConfig }}
+          id: login
+    
+        - name: Create namespace
+          run: |
+            namespacePresent=`kubectl get namespace | grep default | wc -l`
+            if [ $namespacePresent -eq 0 ]
+            then
+                echo `kubectl create namespace default`
+            fi
+        - uses: azure/k8s-create-secret@v1
+          with:
+            namespace: default
+            container-registry-url: aspnetappacr.azurecr.io
+            container-registry-username: ${{ secrets.acr_aspnetappacr_username }}
+            container-registry-password: ${{ secrets.acr_aspnetappacr_password }}
+            secret-name: aspnetappaksdockerauth
+       
+        - uses: azure/k8s-deploy@v1.2
+          with:
+            namespace: default
+            manifests: |
+              manifests/deployment.yml
+              manifests/service.yml
+            images: |
+              aspnetappacr.azurecr.io/aspnetappaks:${{ github.sha }}
+            imagepullsecrets: |
+              aspnetappaksdockerauth
