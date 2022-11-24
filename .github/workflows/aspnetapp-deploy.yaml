@@ -50,10 +50,20 @@ jobs:
               with:
                 cluster-name: ${{ env.CLUSTER_NAME }}
                 resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
+            - uses: azure/k8s-create-secret@v1
+              with:
+                namespace: default
+                container-registry-url: aspnetappacr.azurecr.io
+                container-registry-username: ${{ secrets.acr_aspnetappacr_username }}
+                container-registry-password: ${{ secrets.acr_aspnetappacr_password }}
+                secret-name: aspnetappaksdockerauth
             - uses: Azure/k8s-deploy@v4
               name: Deploys application
               with:
                 action: deploy
                 images: ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.CONTAINER_NAME }}:${{ github.sha }}
+                imagepullsecrets: |
+                  aspnetappaksdockerauth
                 manifests: ${{ env.DEPLOYMENT_MANIFEST_PATH }}
                 namespace: default
+                force: true
