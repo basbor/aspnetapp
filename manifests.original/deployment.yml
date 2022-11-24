@@ -1,19 +1,19 @@
 apiVersion : apps/v1
 kind: Deployment
 metadata:
-  name: "aspnetappaks-ad"
+  name: "aspnetappaks-0e36"
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: "aspnetappaks-ad"
+      app: "aspnetappaks-0e36"
   template:
     metadata:
       labels:
-        app: "aspnetappaks-ad"
+        app: "aspnetappaks-0e36"
     spec:
       containers:
-        - name: "aspnetappaks-ad"
+        - name: "aspnetappaks-0e36"
           image: "aspnetappacr.azurecr.io/aspnetappaks"
           ports:
           - containerPort: 80
